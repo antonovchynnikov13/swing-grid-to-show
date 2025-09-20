@@ -1,11 +1,21 @@
 package test;
 
-/**
- * Selection modes for the grid:
- * HOVER - highlight on mouse hover, delete on click.
- * CLICK - highlight and select cell on click, no delete.
- */
 public enum SelectionMode {
-    HOVER,
-    CLICK
+    CLICK {
+        @Override public void onClick(MyContainer c, int idx) {
+            if (!c.isEmptyCell(idx)) { c.setHighlight(idx); c.updateView(); }
+        }
+        @Override public void onEnter(MyContainer c, int idx) {}
+    },
+    HOVER {
+        @Override public void onClick(MyContainer c, int idx) {
+            if (!c.isEmptyCell(idx)) { c.setHighlight(idx); c.deleteAt(idx); c.updateView(); }
+        }
+        @Override public void onEnter(MyContainer c, int idx) {
+            if (!c.isEmptyCell(idx)) { c.setHighlight(idx); c.updateView(); }
+        }
+    };
+
+    public abstract void onClick(MyContainer c, int idx);
+    public abstract void onEnter(MyContainer c, int idx);
 }

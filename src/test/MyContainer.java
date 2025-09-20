@@ -26,6 +26,8 @@ public class MyContainer extends JPanel {
     private static final Border BORDER_BLUE = BorderFactory.createLineBorder(Color.blue);
     private static final Border BORDER_GREEN = BorderFactory.createLineBorder(Color.green, 3);
 
+    void setHighlight(int idx) { this.highlightIndex = idx; }
+
     private SelectionMode selectionMode = SelectionMode.HOVER;
 
     private JLabel modeLabel;
@@ -54,7 +56,7 @@ public class MyContainer extends JPanel {
             panels[i].setFont(myFont);
             panels[i].setText(String.valueOf(i));
             panels[i].setHorizontalAlignment(SwingConstants.CENTER);
-            panels[i].setBorder(BorderFactory.createLineBorder(Color.blue));
+            panels[i].setBorder(BORDER_BLUE);
             panels[i].addMouseListener(createSelectionListener(i));
             gridPanel.add(panels[i]);
 
@@ -67,29 +69,20 @@ public class MyContainer extends JPanel {
         return new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (isEmptyCell(index)) return;
-                if (selectionMode == SelectionMode.CLICK && SwingUtilities.isLeftMouseButton(e)) {
-                    highlightIndex = index;
-                    updateView();
-                } else if (selectionMode == SelectionMode.HOVER && SwingUtilities.isLeftMouseButton(e)) {
-                    highlightIndex = index;
-                    deleteAt(index);
-                    updateView();
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    selectionMode.onClick(MyContainer.this, index);
                 }
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if (selectionMode == SelectionMode.HOVER && !isEmptyCell(index)) {
-                    highlightIndex = index;
-                    updateView();
-                }
+                selectionMode.onEnter(MyContainer.this, index);
             }
-
         };
     }
 
-    private boolean isEmptyCell(int idx) {
+
+    boolean isEmptyCell(int idx) {
         String t = panels[idx].getText();
         return t == null || t.isEmpty();
     }
@@ -104,7 +97,7 @@ public class MyContainer extends JPanel {
 
     }
 
-    private void updateView() {
+     void updateView() {
         for (int i = 0; i < PANELS_COUNT; i++) {
             if (i == highlightIndex && !isEmptyCell(i)) {
                 panels[i].setBorder(BORDER_GREEN);
@@ -123,7 +116,7 @@ public class MyContainer extends JPanel {
     }
 
 
-    private void deleteAt(int i) {
+    void deleteAt(int i) {
         int col = i % COLS;
         int row = i / COLS;
 
@@ -163,7 +156,7 @@ public class MyContainer extends JPanel {
         });
     }
 
-    public void keyLeft() {
+    private void keyLeft() {
         int i = highlightIndex;
         while (i > 0) {
             i--;
@@ -175,7 +168,7 @@ public class MyContainer extends JPanel {
         updateView();
     }
 
-    public void keyRight() {
+    private void keyRight() {
         int i = highlightIndex;
         while (i < PANELS_COUNT - 1) {
             i++;
